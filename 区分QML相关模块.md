@@ -1,4 +1,4 @@
-# 区分QML相关模块与概念
+# 区分QML与Qt Quick相关模块与概念(Distinguish QML and Qt Quick Concepts)
 在调研过程中发现Qt文档中有很多概念容易混淆，这里列出官网的定义，以帮助进行区分。相关页面请[点击这里](http://doc.qt.io/qt-5/qmlapplications.html)，或者分别查看各模块或概念的定义与介绍页面。
 
 ## QML
