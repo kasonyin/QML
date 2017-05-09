@@ -19,3 +19,21 @@ The Qt Quick Controls provide ***a set of UI controls*** to create user interfac
 
 ## Qt Quick Controls 2
 The differences between **Qt Quick Controls** and **Qt Quick Controls 2** can be seen [here](https://doc.qt.io/qt-5/qtquickcontrols2-differences.html) 
+
+## .qml
+qml source file
+
+在该文件中可以定义GUI，可以用QML编写一些功能代码等。.qml是QML语言代码文件的专用后缀名
+
+## .ui.qml
+Qt Quick UI forms
+
+关于.ui.qml文件的官方描述[在这里](http://doc.qt.io/qtcreator/creator-quick-ui-forms.html)
+
+除了官方文档，还有一些StackOverflow上面的优秀解答同样具有参考价值:[Working with .ui.qml files](http://stackoverflow.com/questions/27456804/working-with-ui-qml-files)还有[What is the use of the ui.qml files in Qt5 QML (QML)?](http://stackoverflow.com/questions/30652537/what-is-the-use-of-the-ui-qml-files-in-qt5-qml)
+
+总结而言，.ui.qml可以这样说，它内部的代码内容是QML语言的一个子集，有一些QML的功能和类型它是没有的，具体有哪些功能和类型没有，在上面的官网相关链接上给出了描述。
+
+官网推荐在Qt Creator中通过Design模式来编辑该类文件，类似于在Qt Widget方式中通过Design模式来编辑.ui文件一样，同样是通过拖拽的方式来进行UI设计。通过尝试操作，认为可以把.ui.qml当做专门的用来描述GUI样式的文件。
+
+经过调研后认为，与UI元素进行交互，应该使用property alias对.ui.qml里的Object进行export，让其可以在.qml文件中通过QML代码进行操作。然后.qml文件中的QML代码再与C++代码进行交互。详细内容会在QML调研文档中描写，这个文档只是用来对容易混淆的模块与概念进行对比

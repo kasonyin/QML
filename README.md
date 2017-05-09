@@ -145,3 +145,129 @@ function setTextField(text){
 QObject::connect(&handleTextField, SIGNAL(setTextField(QVariant)),
                  window, SLOT(setTextField(QVariant)));
 ```
+
+## 有关UI组件
+
+通过调研发现，Qt官方推荐的做法是在.ui.qml中设计UI组件，也就是说应该用Qt Creator的“设计”模式打开.ui.qml文件，然后通过拖动方式设计UI组件。原因解释大致为，为了让Qt Creator的Designer易于管理这些代码，不应太多复杂的东西在该文件中，所以甚至该文件只支持QML语言的一个子集，这点在“*区分QML相关模块*”中有提到。关于.ui.qml文件与.qml文件的一些基本概念的比较以及一些注意事项也在“*区分QML相关模块*”文档中有提及，包括这两个文件虽然后缀名看上去不一样，但是后缀名前面的名字依然应该使用不同的名字等问题（比如Test.qml应该对应TestForm.ui.qml）。然而由于Qt官方似乎没有项目文件组织管理的范例，如何管理项目中的.qml文件，以及.qml文件如何与.ui.qml相协作，还没有查到有价值的信息，或许需要通过Qt的官方示例代码来自己总结。
+
+这里给出一段示例代码简单说明在QML代码中访问.ui.qml中通过拖动方式设计的UI组件。这段实例代码实际上就是Qt Creator里面Qt Quick Application项目初始化的默认代码，只是加上了一个Dialog，以及鼠标点击MouseArea时弹出Dialog的机制，还有一个测试用的Text组件text1。
+
+main.qml
+
+```qml
+import QtQuick 2.6
+import QtQuick.Window 2.2
+import QtQuick.Dialogs 1.2
+
+Window {
+    visible: true
+    width: 640
+    height: 480
+    title: qsTr("Hello World")
+
+    MainForm {
+        mouseArea.onDoubleClicked: {
+            testdialog.open()
+        }
+        anchors.fill: parent
+        mouseArea.onClicked: {
+            console.log(qsTr('Clicked on background. Text: "' + textEdit.text + '"'))
+        }
+        text1.text: qsTr("oh yes")
+    }
+
+    Dialog {
+        id: testdialog
+        title: qsTr("This is the test dialog")
+    }
+}
+```
+
+这段代码中有一些需要注意的地方。首先，需要import QtQuick里的Dialog类库，而且必须要带上版本号，版本号Qt Creator的自动补全会给出提示。
+
+下面便是QML代码。这里实际上包含了树形结构，Window包含了MainForm，和Dialog。Window的id我们设为root，这是一个好习惯，因为每一个qml文件都会有一个根元素，所以把根元素id设为root方便直接使用root来访问。
+
+这里的MainForm对应的是MainForm.ui.qml文件名不要后缀的样子。当qml文件在同一个目录时，一个qml文件直接使用这种形式就可以引用另外一个qml文件中的元素。如果另外一个qml在另外的目录，那么需要使用import语句和相对路径来将那个文件include进来，正如javascript语法那样。**这里顺便提醒一句，qml和.ui.qml文件的名字应该始终以大写字母开头。**
+
+这里的Dialog是一个标准件，它包含在我们上面import进来的QtQuick.Dialog里面。除此之外，还有ColorDialog，FontDialog等，详见[官方文档](http://doc.qt.io/qt-5/qtquickdialogs-index.html)。我们对Dialog的一些属性进行了设置，包括它的id和对话框的标题。
+
+因为Dialog是写在Window的大括号内部的，所以Window就是Dialog的parent，在QML里，父子关系便是这样通过代码体现了。Dialog内部可以使用parent访问父元素。
+
+接下来的问题要结合MainForm.ui.qml来讲
+
+MainForm.ui.qml
+
+```qml
+import QtQuick 2.6
+
+Rectangle {
+    property alias textEdit: textEdit
+
+    width: 360
+    height: 360
+    property alias text1: text1
+    property alias mouseArea: mouseArea
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+
+        Text {
+            id: text1
+            x: 168
+            y: 153
+            text: qsTr("Text")
+            font.pixelSize: 12
+        }
+    }
+
+    TextEdit {
+        id: textEdit
+        text: qsTr("Enter some text...")
+        verticalAlignment: Text.AlignVCenter
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 20
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -10
+            color: "transparent"
+            border.width: 1
+        }
+    }
+}
+```
+
+这段代码中同样有一些值得注意的地方。
+
+首先是property alias语句。你可以看到MouseArea（注意大小写）是Rectangle的一个孩子，所以MouseArea内部的属性、函数等肯定是不在根(root)级别的。property alias语句一方面可以用于为元素里的某些属性设置别名，例如
+
+```qml
+property alias text: textEdit.text
+```
+
+另一方面，通过该语句后，可以将子元素中的属性和函数等提高到root层级，比如这里就可以把MouseArea和TextEdit里的属性和函数提高到root层级。
+
+上面提到过，在同一个目录下的qml文件可以直接访问另外文件里的元素，但是比如TextEdit里的属性text，在另外的qml文件里却不能使用，因为它不在root层级。通过property alias语句后，使用textEdit（冒号左边的textEdit）像这样：textEdit.text变可以在另外的qml文件中访问设置TextEdit的text属性了（注意大小写）。注意.ui.qml文件是通过“设计”模式打开的，在Qt Creator的Designer里也有相应的按钮设置，在“导航”里有一个按钮，提示标签为"Toggle whether this item is exported as an alias property of the root item"，打开或者关闭它，Qt Creator遍会自动添加或删除相应的 property alias 语句。
+
+如此以来，.ui.qml文件便代表了通过拖动方式设计的UI组件。我们现在在Designer中，对MouseArea添加Signal Handler函数。在“导航”窗口中，对相应的组件点击右键遍可以执行操作。我们添加一个双击(double click)的Signal Handler。Qt Creator会在main.qml中添加一段代码：
+
+```qml
+mouseArea.onDoubleClicked: {
+
+}
+```
+
+我们在这里添加代码：
+
+```qml
+testdialog.open()
+```
+
+遍可以在mouseArea收到双击事件时，弹出Dialog。这里testdialog为main.qml里子元素Dialog的id，通过id可以直接指定到它。
+
+同样，我们可以在main.qml的MainForm元素中通过点运算符来访问通过拖拽添加的Text组件的属性，并进行设置：
+
+```qml
+text1.text: qsTr("oh yes")
+```
