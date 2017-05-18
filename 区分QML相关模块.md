@@ -37,3 +37,12 @@ Qt Quick UI forms
 官网推荐在Qt Creator中通过Design模式来编辑该类文件，类似于在Qt Widget方式中通过Design模式来编辑.ui文件一样，同样是通过拖拽的方式来进行UI设计。通过尝试操作，认为可以把.ui.qml当做专门的用来描述GUI样式的文件。
 
 经过调研后认为，与UI元素进行交互，应该使用property alias对.ui.qml里的Object进行export，让其可以在.qml文件中通过QML代码进行操作。然后.qml文件中的QML代码再与C++代码进行交互。详细内容会在QML调研文档中描写，这个文档只是用来对容易混淆的模块与概念进行对比
+
+## An informal C++/QML taxonomy:
+* QtObject - a QML side name for the plain old QObject, not necessarily visual
+
+* Item - a QQuickItem on the C++ side, which is a QObject (and thus a QtObject), root of all visual items
+
+* component - a QQuickComponent on the C++ side, an inline Component item or an imported item in QML source
+
+* document - a string (most often coming from a .qml file) defining a component
