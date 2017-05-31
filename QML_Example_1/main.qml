@@ -56,6 +56,6 @@ ApplicationWindow {
 
     Dialog {
         id: dialog1
-        onAccepted: testText1.setTextContent(qsTr("result"));
+        onAccepted: testText1.textContent = "result";
     }
 }
