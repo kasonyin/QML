@@ -279,3 +279,6 @@ testdialog.open()
 ```
 
 遍可以在mouseArea收到双击事件时，弹出Dialog。这里testdialog为main.qml里子元素Dialog的id，通过id可以直接指定到它。
+
+
+
