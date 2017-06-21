@@ -21,6 +21,7 @@ Item {
     width: 100; height: 100
 }
 ```
+
 这段QML可以在C++中使用**QQmlComponent**或者**QQuickView**来进行装载。**QQmlComponent**和**QQuickView**都可以将QML的document装载为C++的对象，但是QQuickView继承自QWindow，被装载的对象会被进行可视化渲染。这部分内容的官方文档[在这里](http://doc.qt.io/qt-5/qtqml-cppintegration-interactqmlfromcpp.html#loading-qml-objects-from-c)，请等待页面加载完成并跳转到相应页面。
 
 ```cpp
